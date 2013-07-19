@@ -1,4 +1,6 @@
-SQLiteGlue
-==========
+# SQLiteGlue test for Android
 
-Android &amp; other Java native glue interface to sqlite using Gluegen. Unlicense (public domain).
+Test Android app to test SQLiteGlue. Currently shows results in the Android log.
+
+Unlicense (public domain).
+
