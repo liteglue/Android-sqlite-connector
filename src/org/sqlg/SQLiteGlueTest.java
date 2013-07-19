@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import org.sqlg.SQLiteGlue;
 
+import java.io.File;
+
 public class SQLiteGlueTest extends Activity
 {
   static
@@ -19,22 +21,24 @@ public class SQLiteGlueTest extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    long db1 = SQLiteGlue.sqlg_db_open(getFilesDir() + "DB.db", SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
+    File dbfile = new File(getFilesDir(), "DB.db");
 
-if (db1 < 0) {
-  android.util.Log.w("SQLiteGlueTest", "DB open error: " + -db1);
-return;
-}
+    long mydb = SQLiteGlue.sqlg_db_open(dbfile.getAbsolutePath(),
+      SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
 
-long s1 = SQLiteGlue.sqlg_db_prepare_st(db1, "select upper('Chris1')");
-SQLiteGlue.sqlg_st_step(s1);
+    if (mydb < 0) {
+      android.util.Log.w("SQLiteGlueTest", "DB open error: " + -mydb);
+      return;
+    }
 
-String u1 = SQLiteGlue.sqlg_st_column_text(s1, 0);
+    long st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select upper('How about ascii text?')");
+    SQLiteGlue.sqlg_st_step(st);
 
-  android.util.Log.i("SQLiteGlueTest", "upper: " + u1);
+    String first = SQLiteGlue.sqlg_st_column_text(st, 0);
 
-SQLiteGlue.sqlg_st_finish(s1);
-SQLiteGlue.sqlg_db_close(db1);
+    android.util.Log.i("SQLiteGlueTest", "upper: " + first);
 
+    SQLiteGlue.sqlg_st_finish(st);
+    SQLiteGlue.sqlg_db_close(mydb);
   }
 }
