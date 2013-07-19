@@ -31,8 +31,24 @@ public class SQLiteGlueTest extends Activity
       return;
     }
 
-    long st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select upper('How about ascii text?')");
+    long st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select upper('How about ascii text?') as caps");
+
+    if (st < 0) {
+      android.util.Log.w("SQLiteGlueTest", "prepare statement error: " + -st);
+      SQLiteGlue.sqlg_db_close(mydb);
+      return;
+    }
+
     SQLiteGlue.sqlg_st_step(st);
+
+    int colcount = SQLiteGlue.sqlg_st_column_count(st);
+    android.util.Log.i("SQLiteGlueTest", "column count: " + colcount);
+
+    String colname = SQLiteGlue.sqlg_st_column_name(st, 0);
+    android.util.Log.i("SQLiteGlueTest", "column name: " + colname);
+
+    int coltype = SQLiteGlue.sqlg_st_column_type(st, 0);
+    android.util.Log.i("SQLiteGlueTest", "column type: " + coltype);
 
     String first = SQLiteGlue.sqlg_st_column_text(st, 0);
 
