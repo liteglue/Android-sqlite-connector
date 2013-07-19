@@ -1,0 +1,4 @@
+*.java.old
+*.jar
+bin
+gen
