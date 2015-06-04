@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import org.sqlg.SQLiteGlue;
 
+import net.sqlc.*;
+
 import java.io.File;
 
 public class SQLiteGlueTest extends Activity
@@ -23,105 +25,113 @@ public class SQLiteGlueTest extends Activity
 
     File dbfile = new File(getFilesDir(), "DB.db");
 
-    long mydb = SQLiteGlue.sqlg_db_open(dbfile.getAbsolutePath(),
-      SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
+    SQLiteConnection mydbc;
 
-    if (mydb < 0) {
-      android.util.Log.w("SQLiteGlueTest", "DB open error: " + -mydb);
+    try {
+      mydbc = new SQLiteGlueConnection(dbfile.getAbsolutePath(),
+        SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
+    } catch (java.lang.Exception ex) {
+      android.util.Log.w("SQLiteGlueTest", "DB open exception", ex);
       return;
     }
 
-    long st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select upper('How about ascii text?') as caps");
+    SQLiteStatement st;
 
-    if (st < 0) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    try {
+      st = mydbc.prepareStatement("select upper('How about ascii text?') as caps");
+    } catch (java.lang.Exception ex) {
+      android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
+      mydbc.close();
       return;
     }
 
-    SQLiteGlue.sqlg_st_step(st);
+    st.step();
 
-    int colcount = SQLiteGlue.sqlg_st_column_count(st);
+    int colcount = st.getColumnCount();
     android.util.Log.i("SQLiteGlueTest", "column count: " + colcount);
 
-    String colname = SQLiteGlue.sqlg_st_column_name(st, 0);
+    String colname = st.getColumnName(0);
     android.util.Log.i("SQLiteGlueTest", "column name: " + colname);
 
-    int coltype = SQLiteGlue.sqlg_st_column_type(st, 0);
+    int coltype = st.getColumnType(0);
     android.util.Log.i("SQLiteGlueTest", "column type: " + coltype);
 
-    String first = SQLiteGlue.sqlg_st_column_text(st, 0);
+    String first = st.getColumnText(0);
 
     android.util.Log.i("SQLiteGlueTest", "upper: " + first);
 
-    SQLiteGlue.sqlg_st_finish(st);
+    st.finish();
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "drop table if exists test_table;");
-    if (st < 0) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    try {
+      st = mydbc.prepareStatement("drop table if exists test_table;");
+    } catch (java.lang.Exception ex) {
+      android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
+      mydbc.close();
       return;
     }
-    SQLiteGlue.sqlg_st_step(st);
-    SQLiteGlue.sqlg_st_finish(st);
+    st.step();
+    st.finish();
 
     // source: https://github.com/pgsqlite/PG-SQLitePlugin-iOS
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)");
-    if (st < 0) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    try {
+      st = mydbc.prepareStatement("CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)");
+    } catch (java.lang.Exception ex) {
+      android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
+      mydbc.close();
       return;
     }
-    SQLiteGlue.sqlg_st_step(st);
-    SQLiteGlue.sqlg_st_finish(st);
+    st.step();
+    st.finish();
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "INSERT INTO test_table (data, data_num) VALUES (?,?)");
-    if (st < 0) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    try {
+      st = mydbc.prepareStatement("INSERT INTO test_table (data, data_num) VALUES (?,?)");
+    } catch (java.lang.Exception ex) {
+      android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
+      mydbc.close();
       return;
     }
-    SQLiteGlue.sqlg_st_bind_text(st, 1, "test");
-    SQLiteGlue.sqlg_st_bind_int(st, 2, 100);
-    int sr = SQLiteGlue.sqlg_st_step(st);
+    st.bindText(1, "test");
+    st.bindInteger(2, 100);
+    int sr = st.step();
     while (sr == 100) {
       android.util.Log.i("SQLiteGlueTest", "step next");
-      sr = SQLiteGlue.sqlg_st_step(st);
+      sr = st.step();
     }
     android.util.Log.i("SQLiteGlueTest", "last step " + sr);
-    SQLiteGlue.sqlg_st_finish(st);
+    st.finish();
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select * from test_table;");
-    if (st < 0) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    try {
+      st = mydbc.prepareStatement("select * from test_table;");
+    } catch (java.lang.Exception ex) {
+      android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
+      mydbc.close();
       return;
     }
 
-    sr = SQLiteGlue.sqlg_st_step(st);
+    sr = st.step();
     while (sr == 100) {
       android.util.Log.i("SQLiteGlueTest", "step next");
 
-      colcount = SQLiteGlue.sqlg_st_column_count(st);
+      colcount = st.getColumnCount();
       android.util.Log.i("SQLiteGlueTest", "column count: " + colcount);
 
       for (int i=0;i<colcount;++i) {
-        colname = SQLiteGlue.sqlg_st_column_name(st, i);
+        colname = st.getColumnName(i);
         android.util.Log.i("SQLiteGlueTest", "column " + i + " name: " + colname);
 
-        coltype = SQLiteGlue.sqlg_st_column_type(st, i);
+        coltype = st.getColumnType(i);
         android.util.Log.i("SQLiteGlueTest", "column " + i + " type: " + coltype);
 
-        String text = SQLiteGlue.sqlg_st_column_text(st, i);
+        String text = st.getColumnText(i);
         android.util.Log.i("SQLiteGlueTest", "col " + i + " text " + text);
       }
 
-      sr = SQLiteGlue.sqlg_st_step(st);
+      sr = st.step();
     }
     android.util.Log.i("SQLiteGlueTest", "last step " + sr);
 
-    SQLiteGlue.sqlg_st_finish(st);
+    st.finish();
 
-    SQLiteGlue.sqlg_db_close(mydb);
+    mydbc.close();
   }
 }
