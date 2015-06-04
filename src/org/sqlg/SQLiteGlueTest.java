@@ -56,7 +56,7 @@ public class SQLiteGlueTest extends Activity
     int coltype = st.getColumnType(0);
     android.util.Log.i("SQLiteGlueTest", "column type: " + coltype);
 
-    String first = st.getColumnText(0);
+    String first = st.getColumnTextString(0);
 
     android.util.Log.i("SQLiteGlueTest", "upper: " + first);
 
@@ -90,7 +90,7 @@ public class SQLiteGlueTest extends Activity
       mydbc.close();
       return;
     }
-    st.bindText(1, "test");
+    st.bindTextString(1, "test");
     st.bindInteger(2, 100);
     int sr = st.step();
     while (sr == 100) {
@@ -122,7 +122,7 @@ public class SQLiteGlueTest extends Activity
         coltype = st.getColumnType(i);
         android.util.Log.i("SQLiteGlueTest", "column " + i + " type: " + coltype);
 
-        String text = st.getColumnText(i);
+        String text = st.getColumnTextString(i);
         android.util.Log.i("SQLiteGlueTest", "col " + i + " text " + text);
       }
 

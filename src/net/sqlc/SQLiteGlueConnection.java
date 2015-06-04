@@ -22,6 +22,16 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     return new SQLGStatement(sh);
   }
 
+  @Override
+  public long getLastInsertRowid() {
+    return SQLiteGlue.sqlg_db_last_insert_rowid(this.dbhandle);
+  }
+
+  @Override
+  public int getTotalChanges() {
+    return SQLiteGlue.sqlg_db_total_changes(this.dbhandle);
+  }
+
   class SQLGStatement implements SQLiteStatement {
     SQLGStatement(long h) {
       this.sthandle = h;
@@ -43,8 +53,8 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     }
 
     @Override
-    public int bindText(int col, String val) {
-      return SQLiteGlue.sqlg_st_bind_text(this.sthandle, col, val);
+    public int bindTextString(int col, String val) {
+      return SQLiteGlue.sqlg_st_bind_text_string(this.sthandle, col, val);
     }
 
     @Override
@@ -63,13 +73,23 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     }
 
     @Override
-    public String getColumnText(int col) {
-      return SQLiteGlue.sqlg_st_column_text(this.sthandle, col);
+    public int getColumnType(int col) {
+      return SQLiteGlue.sqlg_st_column_type(this.sthandle, col);
     }
 
     @Override
-    public int getColumnType(int col) {
-      return SQLiteGlue.sqlg_st_column_type(this.sthandle, col);
+    public double getColumnDouble(int col) {
+      return SQLiteGlue.sqlg_st_column_double(this.sthandle, col);
+    }
+
+    @Override
+    public long getColumnLong(int col) {
+      return SQLiteGlue.sqlg_st_column_long(this.sthandle, col);
+    }
+
+    @Override
+    public String getColumnTextString(int col) {
+      return SQLiteGlue.sqlg_st_column_text_string(this.sthandle, col);
     }
 
     @Override
