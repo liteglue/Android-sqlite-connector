@@ -18,6 +18,8 @@ public class SQLiteGlueTest extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
+    try {
+
     SQLiteConnector connector = new SQLiteGlueConnector();
 
     File dbfile = new File(getFilesDir(), "DB.db");
@@ -26,7 +28,7 @@ public class SQLiteGlueTest extends Activity
 
     try {
       mydbc = connector.newSQLiteConnection(dbfile.getAbsolutePath(),
-        SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
+        SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE);
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "DB open exception", ex);
       return;
@@ -38,7 +40,7 @@ public class SQLiteGlueTest extends Activity
       st = mydbc.prepareStatement("select upper('How about ascii text?') as caps");
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
-      mydbc.close();
+      mydbc.dispose();
       return;
     }
 
@@ -57,56 +59,56 @@ public class SQLiteGlueTest extends Activity
 
     android.util.Log.i("SQLiteGlueTest", "upper: " + first);
 
-    st.finish();
+    st.dispose();
 
     try {
       st = mydbc.prepareStatement("drop table if exists test_table;");
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
-      mydbc.close();
+      mydbc.dispose();
       return;
     }
     st.step();
-    st.finish();
+    st.dispose();
 
     // source: https://github.com/pgsqlite/PG-SQLitePlugin-iOS
     try {
       st = mydbc.prepareStatement("CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)");
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
-      mydbc.close();
+      mydbc.dispose();
       return;
     }
     st.step();
-    st.finish();
+    st.dispose();
 
     try {
       st = mydbc.prepareStatement("INSERT INTO test_table (data, data_num) VALUES (?,?)");
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
-      mydbc.close();
+      mydbc.dispose();
       return;
     }
     st.bindTextString(1, "test");
     st.bindInteger(2, 100);
-    int sr = st.step();
-    while (sr == 100) {
+    boolean sr = st.step();
+    while (sr) {
       android.util.Log.i("SQLiteGlueTest", "step next");
       sr = st.step();
     }
     android.util.Log.i("SQLiteGlueTest", "last step " + sr);
-    st.finish();
+    st.dispose();
 
     try {
       st = mydbc.prepareStatement("select * from test_table;");
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
-      mydbc.close();
+      mydbc.dispose();
       return;
     }
 
     sr = st.step();
-    while (sr == 100) {
+    while (sr) {
       android.util.Log.i("SQLiteGlueTest", "step next");
 
       colcount = st.getColumnCount();
@@ -127,8 +129,13 @@ public class SQLiteGlueTest extends Activity
     }
     android.util.Log.i("SQLiteGlueTest", "last step " + sr);
 
-    st.finish();
+    st.dispose();
 
-    mydbc.close();
+    mydbc.dispose();
+
+    } catch (java.sql.SQLException ex) {
+      android.util.Log.w("SQLiteGlueTest", "DB open exception", ex);
+      return;
+    }
   }
 }

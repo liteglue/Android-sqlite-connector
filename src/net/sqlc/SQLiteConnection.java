@@ -1,8 +1,8 @@
 package net.sqlc;
 
 public interface SQLiteConnection {
-  public int close();
+  public void dispose() throws java.sql.SQLException;
   public SQLiteStatement prepareStatement(String sql) throws java.sql.SQLException;
-  public long getLastInsertRowid();
-  public int getTotalChanges();
+  public long getLastInsertRowid() throws java.sql.SQLException;
+  public int getTotalChanges() throws java.sql.SQLException;
 }
