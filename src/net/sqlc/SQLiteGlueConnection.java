@@ -3,10 +3,11 @@ package net.sqlc;
 import org.sqlg.SQLiteGlue;
 
 public class SQLiteGlueConnection implements SQLiteConnection {
-  public SQLiteGlueConnection(String filename, int flags)
+  public SQLiteGlueConnection(String filename, int flags) throws java.sql.SQLException
   {
     long handle = SQLiteGlue.sqlg_db_open(filename, flags);
-    if (handle < 0) throw new java.lang.IllegalStateException("sqlite3_open_v2() failed with error: " + (-handle));
+    if (handle < 0) throw new java.sql.SQLException("sqlite3_open_v2() failed with error: " + (-handle),
+      "failed", (int)(-handle));
     this.dbhandle = handle;
   }
 
@@ -16,9 +17,10 @@ public class SQLiteGlueConnection implements SQLiteConnection {
   }
 
   @Override
-  public SQLiteStatement prepareStatement(String sql) {
+  public SQLiteStatement prepareStatement(String sql) throws java.sql.SQLException {
     long sh = SQLiteGlue.sqlg_db_prepare_st(this.dbhandle, sql);
-    if (sh < 0) throw new java.lang.IllegalStateException("sqlite3_prepare_v2() failed with error: " + (-sh));
+    if (sh < 0) throw new java.sql.SQLException("sqlite3_prepare_v2() failed with error: " + (-sh),
+      "failed", (int)(-sh));
     return new SQLGStatement(sh);
   }
 
