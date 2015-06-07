@@ -11,11 +11,6 @@ import java.io.File;
 
 public class SQLiteGlueTest extends Activity
 {
-  static
-  {
-    System.loadLibrary("sqlg");
-  }
-
   /** Called when the activity is first created. */
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -23,12 +18,14 @@ public class SQLiteGlueTest extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
+    SQLiteConnector connector = new SQLiteGlueConnector();
+
     File dbfile = new File(getFilesDir(), "DB.db");
 
     SQLiteConnection mydbc;
 
     try {
-      mydbc = new SQLiteGlueConnection(dbfile.getAbsolutePath(),
+      mydbc = connector.newSQLiteConnection(dbfile.getAbsolutePath(),
         SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "DB open exception", ex);
