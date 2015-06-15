@@ -3,6 +3,9 @@ package org.sqlg;
 import android.app.Activity;
 import android.os.Bundle;
 
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 import org.sqlg.SQLiteGlue;
 
 import net.sqlc.*;
@@ -17,6 +20,16 @@ public class SQLiteGlueTest extends Activity
   {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
+
+    ArrayAdapter<String> r1 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+    ListView lv1 = (ListView)findViewById(R.id.results);
+    lv1.setAdapter(r1);
+    r1.add(new String("test string 1"));
+
+  //  runTest();
+  //}
+
+  // /* package */ void runTest() {
 
     try {
 
@@ -37,7 +50,7 @@ public class SQLiteGlueTest extends Activity
     SQLiteStatement st;
 
     try {
-      st = mydbc.prepareStatement("select upper('How about ascii text?') as caps");
+      st = mydbc.prepareStatement("select upper('How about some ascii text?') as caps");
     } catch (java.lang.Exception ex) {
       android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
       mydbc.dispose();
@@ -47,9 +60,11 @@ public class SQLiteGlueTest extends Activity
     st.step();
 
     int colcount = st.getColumnCount();
+    r1.add(new String("column count: " + colcount));
     android.util.Log.i("SQLiteGlueTest", "column count: " + colcount);
 
     String colname = st.getColumnName(0);
+    r1.add(new String("column name: " + colname));
     android.util.Log.i("SQLiteGlueTest", "column name: " + colname);
 
     int coltype = st.getColumnType(0);
@@ -57,7 +72,17 @@ public class SQLiteGlueTest extends Activity
 
     String first = st.getColumnTextString(0);
 
-    android.util.Log.i("SQLiteGlueTest", "upper: " + first);
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
+    r1.add(new String("upper: " + first));
 
     st.dispose();
 
@@ -134,7 +159,7 @@ public class SQLiteGlueTest extends Activity
     mydbc.dispose();
 
     } catch (java.sql.SQLException ex) {
-      android.util.Log.w("SQLiteGlueTest", "DB open exception", ex);
+      android.util.Log.w("SQLiteGlueTest", "sql exception", ex);
       return;
     }
   }
