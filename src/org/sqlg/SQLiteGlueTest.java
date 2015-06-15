@@ -121,7 +121,7 @@ public class SQLiteGlueTest extends Activity
       int coltype = SQLiteGlue.sqlg_st_column_type(st, 0);
       checkIntegerResult("SELECT UPPER() caps column type", coltype, 3);
 
-      String coltext = SQLiteGlue.sqlg_st_column_text_string(st, 0);
+      String coltext = SQLiteGlue.sqlg_st_column_text_native(st, 0);
       checkStringResult("SELECT UPPER() as caps", coltext, "HOW ABOUT SOME ASCII TEXT?");
     }
 
@@ -151,9 +151,9 @@ public class SQLiteGlueTest extends Activity
       SQLiteGlue.sqlg_db_close(mydb);
       return;
     }
-    SQLiteGlue.sqlg_st_bind_text_string(st, 1, "test");
+    SQLiteGlue.sqlg_st_bind_text_native(st, 1, "test");
     SQLiteGlue.sqlg_st_bind_int(st, 2, 10100);
-    SQLiteGlue.sqlg_st_bind_int64(st, 3, 0x1230000abcdL);
+    SQLiteGlue.sqlg_st_bind_long(st, 3, 0x1230000abcdL);
     SQLiteGlue.sqlg_st_bind_double(st, 4, 123456.789);
     int sr = SQLiteGlue.sqlg_st_step(st);
     while (sr == 100) {
@@ -181,6 +181,7 @@ public class SQLiteGlueTest extends Activity
         String colname;
         int coltype;
         String coltext;
+        int intval;
         long longval;
         double doubleval;
 
@@ -190,7 +191,7 @@ public class SQLiteGlueTest extends Activity
         coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
         checkIntegerResult("SELECT column " + colid + " type", coltype, 3); /* SQLITE_TEXT */
 
-        coltext = SQLiteGlue.sqlg_st_column_text_string(st, colid);
+        coltext = SQLiteGlue.sqlg_st_column_text_native(st, colid);
         checkStringResult("SELECT column " + colid + " text string", coltext, "test");
 
         ++colid;
@@ -201,8 +202,10 @@ public class SQLiteGlueTest extends Activity
         coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
         checkIntegerResult("SELECT column " + colid + " type", coltype, 1); /* SQLITE_INTEGER */
 
-        coltext = SQLiteGlue.sqlg_st_column_text_string(st, colid);
+        coltext = SQLiteGlue.sqlg_st_column_text_native(st, colid);
         checkStringResult("SELECT column " + colid + " text string", coltext, "10100");
+        intval = SQLiteGlue.sqlg_st_column_int(st, colid);
+        checkIntegerResult("SELECT column " + colid + " int value", intval, 10100);
         longval = SQLiteGlue.sqlg_st_column_long(st, colid);
         checkLongResult("SELECT column " + colid + " long value", longval, 10100);
 
@@ -225,7 +228,7 @@ public class SQLiteGlueTest extends Activity
         coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
         checkIntegerResult("SELECT column " + colid + " type", coltype, 2); /* SQLITE_FLOAT */
 
-        coltext = SQLiteGlue.sqlg_st_column_text_string(st, colid);
+        coltext = SQLiteGlue.sqlg_st_column_text_native(st, colid);
         checkStringResult("SELECT column " + colid + " text string", coltext, "123456.789");
         doubleval = SQLiteGlue.sqlg_st_column_double(st, colid);
         checkDoubleResult("SELECT column " + colid + " double (real) value", doubleval, 123456.789);
