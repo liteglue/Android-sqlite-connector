@@ -1,4 +1,6 @@
-*.java.old
+.*.swp
+*.swp
+*.java.orig
 *.jar
 bin
 gen
