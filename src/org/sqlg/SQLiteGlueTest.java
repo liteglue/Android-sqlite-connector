@@ -91,92 +91,93 @@ public class SQLiteGlueTest extends Activity
     ListView lv1 = (ListView)findViewById(R.id.results);
     lv1.setAdapter(resultsAdapter);
 
-    File dbfile = new File(getFilesDir(), "DB.db");
+    File dbfile = new File(this.getFilesDir(), "DB.db");
 
-    long mydb = SQLiteGlue.sqlg_db_open(dbfile.getAbsolutePath(),
+    long dbhandle = SQLiteGlue.sqlg_db_open(dbfile.getAbsolutePath(),
       SQLiteGlue.SQLG_OPEN_READWRITE | SQLiteGlue.SQLG_OPEN_CREATE);
 
-    if (mydb < 0) {
-      logError("DB open error: " + -mydb);
+    if (dbhandle < 0) {
+      logError("DB open error: " + -dbhandle);
       return;
     }
 
-    long st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select upper('How about some ascii text?') as caps");
+    long sthandle = SQLiteGlue.sqlg_db_prepare_st(dbhandle, "SELECT UPPER('How about some ascii text?') AS caps");
 
-    if (st < 0) {
-      logError("prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    if (sthandle < 0) {
+      logError("prepare statement error: " + -sthandle);
+      SQLiteGlue.sqlg_db_close(dbhandle);
       return;
     }
 
-    SQLiteGlue.sqlg_st_step(st);
+    SQLiteGlue.sqlg_st_step(sthandle);
 
-    int colcount = SQLiteGlue.sqlg_st_column_count(st);
-    checkIntegerResult("SELECT UPPER() column count: ", colcount, 1);
+    int colcount1 = SQLiteGlue.sqlg_st_column_count(sthandle);
+    checkIntegerResult("SELECT UPPER() column count: ", colcount1, 1);
 
-    if (colcount > 0) {
-      String colname = SQLiteGlue.sqlg_st_column_name(st, 0);
+    if (colcount1 > 0) {
+      String colname = SQLiteGlue.sqlg_st_column_name(sthandle, 0);
       checkStringResult("SELECT UPPER() caps column name", colname, "caps");
 
-      int coltype = SQLiteGlue.sqlg_st_column_type(st, 0);
+      int coltype = SQLiteGlue.sqlg_st_column_type(sthandle, 0);
       checkIntegerResult("SELECT UPPER() caps column type", coltype, 3);
 
-      String coltext = SQLiteGlue.sqlg_st_column_text_native(st, 0);
+      String coltext = SQLiteGlue.sqlg_st_column_text_native(sthandle, 0);
       checkStringResult("SELECT UPPER() as caps", coltext, "HOW ABOUT SOME ASCII TEXT?");
     }
 
-    SQLiteGlue.sqlg_st_finish(st);
+    SQLiteGlue.sqlg_st_finish(sthandle);
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "drop table if exists tt;");
-    if (st < 0) {
-      logError("prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    sthandle = SQLiteGlue.sqlg_db_prepare_st(dbhandle, "DROP TABLE IF EXISTS mytable;");
+    if (sthandle < 0) {
+      logError("prepare statement error: " + -sthandle);
+      SQLiteGlue.sqlg_db_close(dbhandle);
       return;
     }
-    SQLiteGlue.sqlg_st_step(st);
-    SQLiteGlue.sqlg_st_finish(st);
+    SQLiteGlue.sqlg_st_step(sthandle);
+    SQLiteGlue.sqlg_st_finish(sthandle);
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "create table if not exists tt (text1 text, num1 integer, num2 integer, real1 real)");
-    if (st < 0) {
-      logError("prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    sthandle = SQLiteGlue.sqlg_db_prepare_st(dbhandle, "CREATE TABLE mytable (text1 TEXT, num1 INTEGER, num2 INTEGER, real1 REAL)");
+    if (sthandle < 0) {
+      logError("prepare statement error: " + -sthandle);
+      SQLiteGlue.sqlg_db_close(dbhandle);
       return;
     }
-    SQLiteGlue.sqlg_st_step(st);
-    SQLiteGlue.sqlg_st_finish(st);
+    int stresult1 = SQLiteGlue.sqlg_st_step(sthandle);
+    checkIntegerResult("CREATE TABLE step result", stresult1, SQLiteGlue.SQLG_RESULT_DONE);
+    SQLiteGlue.sqlg_st_finish(sthandle);
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "INSERT INTO tt (text1, num1, num2, real1) VALUES (?,?,?,?)");
-    if (st < 0) {
-      logError("prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    sthandle = SQLiteGlue.sqlg_db_prepare_st(dbhandle, "INSERT INTO mytable (text1, num1, num2, real1) VALUES (?,?,?,?)");
+    if (sthandle < 0) {
+      logError("prepare statement error: " + -sthandle);
+      SQLiteGlue.sqlg_db_close(dbhandle);
       return;
     }
-    SQLiteGlue.sqlg_st_bind_text_native(st, 1, "test");
-    SQLiteGlue.sqlg_st_bind_int(st, 2, 10100);
-    SQLiteGlue.sqlg_st_bind_long(st, 3, 0x1230000abcdL);
-    SQLiteGlue.sqlg_st_bind_double(st, 4, 123456.789);
-    int sr = SQLiteGlue.sqlg_st_step(st);
-    while (sr == 100) {
+    SQLiteGlue.sqlg_st_bind_text_native(sthandle, 1, "test");
+    SQLiteGlue.sqlg_st_bind_int(sthandle, 2, 10100);
+    SQLiteGlue.sqlg_st_bind_long(sthandle, 3, 0x1230000abcdL);
+    SQLiteGlue.sqlg_st_bind_double(sthandle, 4, 123456.789);
+    stresult1 = SQLiteGlue.sqlg_st_step(sthandle);
+    while (stresult1 == SQLiteGlue.SQLG_RESULT_ROW) {
       logError("ERROR: ROW result NOT EXPECTED for INSERT");
-      sr = SQLiteGlue.sqlg_st_step(st);
+      stresult1 = SQLiteGlue.sqlg_st_step(sthandle);
     }
-    checkIntegerResult("INSERT last step result", sr, 101);
-    SQLiteGlue.sqlg_st_finish(st);
+    checkIntegerResult("INSERT last step result", stresult1, SQLiteGlue.SQLG_RESULT_DONE);
+    SQLiteGlue.sqlg_st_finish(sthandle);
 
-    st = SQLiteGlue.sqlg_db_prepare_st(mydb, "select * from tt;");
-    if (st < 0) {
-      logError("prepare statement error: " + -st);
-      SQLiteGlue.sqlg_db_close(mydb);
+    sthandle = SQLiteGlue.sqlg_db_prepare_st(dbhandle, "SELECT text1, num1, num2, real1 FROM mytable;");
+    if (sthandle < 0) {
+      logError("prepare statement error: " + -sthandle);
+      SQLiteGlue.sqlg_db_close(dbhandle);
       return;
     }
 
-    sr = SQLiteGlue.sqlg_st_step(st);
-    checkIntegerResult("SELECT step result", sr, 100);
-    if (sr == 100) {
-      colcount = SQLiteGlue.sqlg_st_column_count(st);
-      checkIntegerResult("SELECT column count", colcount, 4);
+    stresult1 = SQLiteGlue.sqlg_st_step(sthandle);
+    checkIntegerResult("SELECT step result", stresult1, SQLiteGlue.SQLG_RESULT_ROW);
+    if (stresult1 == SQLiteGlue.SQLG_RESULT_ROW) {
+      colcount1 = SQLiteGlue.sqlg_st_column_count(sthandle);
+      checkIntegerResult("SELECT column count", colcount1, 4);
 
-      if (colcount >= 3) {
+      if (colcount1 >= 3) {
         int colid = 0;
         String colname;
         int coltype;
@@ -185,62 +186,62 @@ public class SQLiteGlueTest extends Activity
         long longval;
         double doubleval;
 
-        colname = SQLiteGlue.sqlg_st_column_name(st, colid);
+        colname = SQLiteGlue.sqlg_st_column_name(sthandle, colid);
         checkStringResult("SELECT column " + colid + " name", colname, "text1");
 
-        coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
-        checkIntegerResult("SELECT column " + colid + " type", coltype, 3); /* SQLITE_TEXT */
+        coltype = SQLiteGlue.sqlg_st_column_type(sthandle, colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLiteGlue.SQLG_TEXT);
 
-        coltext = SQLiteGlue.sqlg_st_column_text_native(st, colid);
+        coltext = SQLiteGlue.sqlg_st_column_text_native(sthandle, colid);
         checkStringResult("SELECT column " + colid + " text string", coltext, "test");
 
         ++colid;
 
-        colname = SQLiteGlue.sqlg_st_column_name(st, colid);
+        colname = SQLiteGlue.sqlg_st_column_name(sthandle, colid);
         checkStringResult("SELECT column " + colid + " name", colname, "num1");
 
-        coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
-        checkIntegerResult("SELECT column " + colid + " type", coltype, 1); /* SQLITE_INTEGER */
+        coltype = SQLiteGlue.sqlg_st_column_type(sthandle, colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLiteGlue.SQLG_INTEGER);
 
-        coltext = SQLiteGlue.sqlg_st_column_text_native(st, colid);
+        coltext = SQLiteGlue.sqlg_st_column_text_native(sthandle, colid);
         checkStringResult("SELECT column " + colid + " text string", coltext, "10100");
-        intval = SQLiteGlue.sqlg_st_column_int(st, colid);
+        intval = SQLiteGlue.sqlg_st_column_int(sthandle, colid);
         checkIntegerResult("SELECT column " + colid + " int value", intval, 10100);
-        longval = SQLiteGlue.sqlg_st_column_long(st, colid);
+        longval = SQLiteGlue.sqlg_st_column_long(sthandle, colid);
         checkLongResult("SELECT column " + colid + " long value", longval, 10100);
 
         ++colid;
 
-        colname = SQLiteGlue.sqlg_st_column_name(st, colid);
+        colname = SQLiteGlue.sqlg_st_column_name(sthandle, colid);
         checkStringResult("SELECT column " + colid + " name", colname, "num2");
 
-        coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
-        checkIntegerResult("SELECT column " + colid + " type", coltype, 1); /* SQLITE_INTEGER */
+        coltype = SQLiteGlue.sqlg_st_column_type(sthandle, colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLiteGlue.SQLG_INTEGER);
 
-        longval = SQLiteGlue.sqlg_st_column_long(st, colid);
+        longval = SQLiteGlue.sqlg_st_column_long(sthandle, colid);
         checkLongResult("SELECT column " + colid + " long value", longval, 0x1230000abcdL);
 
         ++colid;
 
-        colname = SQLiteGlue.sqlg_st_column_name(st, colid);
+        colname = SQLiteGlue.sqlg_st_column_name(sthandle, colid);
         checkStringResult("SELECT column " + colid + " name", colname, "real1");
 
-        coltype = SQLiteGlue.sqlg_st_column_type(st, colid);
-        checkIntegerResult("SELECT column " + colid + " type", coltype, 2); /* SQLITE_FLOAT */
+        coltype = SQLiteGlue.sqlg_st_column_type(sthandle, colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLiteGlue.SQLG_FLOAT);
 
-        coltext = SQLiteGlue.sqlg_st_column_text_native(st, colid);
+        coltext = SQLiteGlue.sqlg_st_column_text_native(sthandle, colid);
         checkStringResult("SELECT column " + colid + " text string", coltext, "123456.789");
-        doubleval = SQLiteGlue.sqlg_st_column_double(st, colid);
+        doubleval = SQLiteGlue.sqlg_st_column_double(sthandle, colid);
         checkDoubleResult("SELECT column " + colid + " double (real) value", doubleval, 123456.789);
       }
 
-      sr = SQLiteGlue.sqlg_st_step(st);
+      stresult1 = SQLiteGlue.sqlg_st_step(sthandle);
     }
-    checkIntegerResult("SELECT next/last step result", sr, 101);
+    checkIntegerResult("SELECT next/last step result", stresult1, SQLiteGlue.SQLG_RESULT_DONE);
 
-    SQLiteGlue.sqlg_st_finish(st);
+    SQLiteGlue.sqlg_st_finish(sthandle);
 
-    SQLiteGlue.sqlg_db_close(mydb);
+    SQLiteGlue.sqlg_db_close(dbhandle);
 
     checkIntegerResult("TEST error count", errorCount, 0);
   }
