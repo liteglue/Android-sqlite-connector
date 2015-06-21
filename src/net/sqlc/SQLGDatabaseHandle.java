@@ -21,6 +21,14 @@ import org.sqlg.SQLiteGlue;
   }
 
   @Override
+  public int keyNativeString(String key) {
+    /* check state (should be checked by caller): */
+    if (dbhandle == 0) return SQLCode.MISUSE;
+
+    return SQLiteGlue.sqlg_db_key_string_native(this.dbhandle, key);
+  }
+
+  @Override
   public int close() {
     /* check state (should be checked by caller): */
     if (dbhandle == 0) return SQLCode.MISUSE;
