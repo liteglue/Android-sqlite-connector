@@ -190,10 +190,11 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
+      long mysthandle = sthandle;
       sql = null;
       sthandle = 0;
 
-      return SQLiteGlue.sqlg_st_finish(sthandle);
+      return SQLiteGlue.sqlg_st_finish(mysthandle);
     }
 
     String sql = null;
