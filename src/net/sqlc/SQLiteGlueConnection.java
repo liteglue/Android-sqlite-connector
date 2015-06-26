@@ -26,7 +26,7 @@ public class SQLiteGlueConnection implements SQLiteConnection {
   }
 
   @Override
-  public void keyString(String key) throws java.sql.SQLException {
+  public void keyNativeString(String key) throws java.sql.SQLException {
     /* check state: */
     if (db == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 

@@ -22,10 +22,16 @@ import org.sqlg.SQLiteGlue;
 
   @Override
   public int keyNativeString(String key) {
-    /* check state (should be checked by caller): */
-    if (dbhandle == 0) return SQLCode.MISUSE;
+    return SQLCode.INTERNAL; /* 2 */
 
-    return SQLiteGlue.sqlg_db_key_string_native(this.dbhandle, key);
+    // FUTURE TODO: this should work in case it links with sqlcipher,
+    // or simply return SQLITE_INTERNAL (2) if it links with
+    // unencrypted version of sqlite.
+
+    /* check state (should be checked by caller): */
+    //if (dbhandle == 0) return SQLCode.MISUSE;
+
+    //return SQLiteGlue.sqlg_db_key_string_native(this.dbhandle, key);
   }
 
   @Override
