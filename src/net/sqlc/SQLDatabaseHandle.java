@@ -1,6 +1,6 @@
 package net.sqlc;
 
-public interface SQLDatabaseHandle {
+/* package */ interface SQLDatabaseHandle {
   public int open();
   public int close();
   public boolean isOpen();

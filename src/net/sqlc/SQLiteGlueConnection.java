@@ -96,15 +96,15 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     }
 
     @Override
-    public void bindTextString(int col, String val) throws java.sql.SQLException {
+    public void bindTextNativeString(int col, String val) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       /* check param(s): */
       if (val == null) throw new java.sql.SQLException("null argument", "failed", SQLCode.MISUSE);
 
-      int rc = sthandle.bindTextString(col, val);
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindTextString failed with error: " + rc, "failed", rc);
+      int rc = sthandle.bindTextNativeString(col, val);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindTextNativeString failed with error: " + rc, "failed", rc);
     }
 
     @Override
@@ -163,6 +163,16 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     }
 
     @Override
+    public int getColumnInteger(int col) throws java.sql.SQLException {
+      /* check state: */
+      if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
+      if (!hasRow) throw new java.sql.SQLException("no result available", "failed", SQLCode.MISUSE);
+      if (col < 0 || col >= columnCount) throw new java.sql.SQLException("no result available", "failed", SQLCode.MISUSE);
+
+      return sthandle.getColumnInteger(col);
+    }
+
+    @Override
     public long getColumnLong(int col) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
@@ -173,13 +183,13 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     }
 
     @Override
-    public String getColumnTextString(int col) throws java.sql.SQLException {
+    public String getColumnTextNativeString(int col) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
       if (!hasRow) throw new java.sql.SQLException("no result available", "failed", SQLCode.MISUSE);
       if (col < 0 || col >= columnCount) throw new java.sql.SQLException("no result available", "failed", SQLCode.MISUSE);
 
-      return sthandle.getColumnTextString(col);
+      return sthandle.getColumnTextNativeString(col);
     }
 
     @Override

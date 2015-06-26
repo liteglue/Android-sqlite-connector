@@ -2,7 +2,7 @@ package net.sqlc;
 
 import org.sqlg.SQLiteGlue;
 
-public class SQLGDatabaseHandle implements SQLDatabaseHandle {
+/* package */ class SQLGDatabaseHandle implements SQLDatabaseHandle {
   public SQLGDatabaseHandle(String filename, int flags) {
     dbfilename = filename;
     openflags = flags;
@@ -96,15 +96,15 @@ public class SQLGDatabaseHandle implements SQLDatabaseHandle {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_int64(this.sthandle, col, val);
+      return SQLiteGlue.sqlg_st_bind_long(this.sthandle, col, val);
     }
 
     @Override
-    public int bindTextString(int col, String val) {
+    public int bindTextNativeString(int col, String val) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_text_string(this.sthandle, col, val);
+      return SQLiteGlue.sqlg_st_bind_text_native(this.sthandle, col, val);
     }
 
     @Override
@@ -148,6 +148,14 @@ public class SQLGDatabaseHandle implements SQLDatabaseHandle {
     }
 
     @Override
+    public int getColumnInteger(int col) {
+      /* check state (should be checked by caller): */
+      if (sthandle == 0) return -1;
+
+      return SQLiteGlue.sqlg_st_column_int(this.sthandle, col);
+    }
+
+    @Override
     public long getColumnLong(int col) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return -1;
@@ -156,11 +164,11 @@ public class SQLGDatabaseHandle implements SQLDatabaseHandle {
     }
 
     @Override
-    public String getColumnTextString(int col) {
+    public String getColumnTextNativeString(int col) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return null;
 
-      return SQLiteGlue.sqlg_st_column_text_string(this.sthandle, col);
+      return SQLiteGlue.sqlg_st_column_text_native(this.sthandle, col);
     }
 
     @Override
