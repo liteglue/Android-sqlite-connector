@@ -1,4 +1,4 @@
-package org.sqlg;
+package com.test;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import java.io.File;
 
 import java.sql.SQLException;
 
-public class SQLiteGlueTest extends Activity
+public class SQLiteConnectorTest extends Activity
 {
   ArrayAdapter<String> resultsAdapter;
 
