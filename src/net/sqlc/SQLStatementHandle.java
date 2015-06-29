@@ -2,9 +2,10 @@ package net.sqlc;
 
 /* package */ interface SQLStatementHandle {
   public int prepare();
-  public int bindDouble(int col, double val);
-  public int bindInteger(int col, int val);
-  public int bindLong(int col, long val);
+  public int bindDouble(int pos, double val);
+  public int bindInteger(int pos, int val);
+  public int bindLong(int pos, long val);
+  public int bindNull(int pos);
   public int bindTextNativeString(int col, String val);
   public int step();
   public int getColumnCount();

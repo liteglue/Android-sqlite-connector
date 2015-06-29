@@ -90,35 +90,43 @@ import org.sqlg.SQLiteGlue;
     }
 
     @Override
-    public int bindDouble(int col, double val) {
+    public int bindDouble(int pos, double val) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_double(this.sthandle, col, val);
+      return SQLiteGlue.sqlg_st_bind_double(this.sthandle, pos, val);
     }
 
     @Override
-    public int bindInteger(int col, int val) {
+    public int bindInteger(int pos, int val) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_int(this.sthandle, col, val);
+      return SQLiteGlue.sqlg_st_bind_int(this.sthandle, pos, val);
     }
 
     @Override
-    public int bindLong(int col, long val) {
+    public int bindLong(int pos, long val) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_long(this.sthandle, col, val);
+      return SQLiteGlue.sqlg_st_bind_long(this.sthandle, pos, val);
     }
 
     @Override
-    public int bindTextNativeString(int col, String val) {
+    public int bindNull(int pos) {
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_text_native(this.sthandle, col, val);
+      return SQLiteGlue.sqlg_st_bind_null(this.sthandle, pos);
+    }
+
+    @Override
+    public int bindTextNativeString(int pos, String val) {
+      /* check state (should be checked by caller): */
+      if (sthandle == 0) return SQLCode.MISUSE;
+
+      return SQLiteGlue.sqlg_st_bind_text_native(this.sthandle, pos, val);
     }
 
     @Override

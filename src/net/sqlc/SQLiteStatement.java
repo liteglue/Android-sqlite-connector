@@ -1,10 +1,11 @@
 package net.sqlc;
 
 public interface SQLiteStatement {
-  public void bindDouble(int col, double val) throws java.sql.SQLException;
-  public void bindInteger(int col, int val) throws java.sql.SQLException;
-  public void bindLong(int col, long val) throws java.sql.SQLException;
-  public void bindTextNativeString(int col, String val) throws java.sql.SQLException;
+  public void bindDouble(int pos, double val) throws java.sql.SQLException;
+  public void bindInteger(int pos, int val) throws java.sql.SQLException;
+  public void bindLong(int pos, long val) throws java.sql.SQLException;
+  public void bindNull(int pos) throws java.sql.SQLException;
+  public void bindTextNativeString(int pos, String val) throws java.sql.SQLException;
   public boolean step() throws java.sql.SQLException;
   public int getColumnCount() throws java.sql.SQLException;
   public String getColumnName(int col) throws java.sql.SQLException;

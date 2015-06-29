@@ -78,41 +78,50 @@ public class SQLiteGlueConnection implements SQLiteConnection {
     }
 
     @Override
-    public void bindDouble(int col, double val) throws java.sql.SQLException {
+    public void bindDouble(int pos, double val) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
-      int rc = sthandle.bindDouble(col, val);
+      int rc = sthandle.bindDouble(pos, val);
       if (rc != SQLCode.OK) throw new java.sql.SQLException("bindDouble failed with error: " + rc, "failed", rc);
     }
 
     @Override
-    public void bindInteger(int col, int val) throws java.sql.SQLException {
+    public void bindInteger(int pos, int val) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
-      int rc = sthandle.bindInteger(col, val);
+      int rc = sthandle.bindInteger(pos, val);
       if (rc != SQLCode.OK) throw new java.sql.SQLException("bindInteger failed with error: " + rc, "failed", rc);
     }
 
     @Override
-    public void bindLong(int col, long val) throws java.sql.SQLException {
+    public void bindLong(int pos, long val) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
-      int rc = sthandle.bindLong(col, val);
+      int rc = sthandle.bindLong(pos, val);
       if (rc != SQLCode.OK) throw new java.sql.SQLException("bindLong failed with error: " + rc, "failed", rc);
     }
 
     @Override
-    public void bindTextNativeString(int col, String val) throws java.sql.SQLException {
+    public void bindNull(int pos) throws java.sql.SQLException {
+      /* check state: */
+      if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
+
+      int rc = sthandle.bindNull(pos);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindNull failed with error: " + rc, "failed", rc);
+    }
+
+    @Override
+    public void bindTextNativeString(int pos, String val) throws java.sql.SQLException {
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       /* check param(s): */
       if (val == null) throw new java.sql.SQLException("null argument", "failed", SQLCode.MISUSE);
 
-      int rc = sthandle.bindTextNativeString(col, val);
+      int rc = sthandle.bindTextNativeString(pos, val);
       if (rc != SQLCode.OK) throw new java.sql.SQLException("bindTextNativeString failed with error: " + rc, "failed", rc);
     }
 
