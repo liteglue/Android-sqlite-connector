@@ -2,7 +2,7 @@
 
 Abstract interface layer to allow higher-level Android sqlite database libraries to use SQLiteGlue without hard-coded dependency.
 
-With test Android app to test SQLiteGlue with SQLiteConnection/SQLiteStatement abstract interface layer. Currently shows results in the Android log.
+With simple test Android app to test SQLiteGlue with SQLiteConnection/SQLiteStatement abstract interface layer.
 
 Unlicense (public domain).
 

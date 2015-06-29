@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.sqlg.SQLiteGlue;
-
 import net.sqlc.*;
 
 import java.io.File;
@@ -18,9 +16,82 @@ public class SQLiteConnectorTest extends Activity
 {
   ArrayAdapter<String> resultsAdapter;
 
+  int errorCount = 0;
+
+  /* package */ void logErrorItem(String result) {
+    android.util.Log.e("SQLiteGlueTest", result);
+    resultsAdapter.add(result);
+  }
+
+  /* package */ void checkBooleanResult(String label, boolean actual, boolean expected) {
+    if (expected == actual) {
+      logResult(label + " - OK");
+    } else {
+      ++errorCount;
+      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("expected: " + expected);
+      logErrorItem("actual: " + actual);
+    }
+  }
+
+  /* package */ void checkIntegerResult(String label, int actual, int expected) {
+    if (expected == actual) {
+      logResult(label + " - OK");
+    } else {
+      ++errorCount;
+      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("expected: " + expected);
+      logErrorItem("actual: " + actual);
+    }
+  }
+
+  /* package */ void checkLongResult(String label, long actual, long expected) {
+    if (expected == actual) {
+      logResult(label + " - OK");
+    } else {
+      ++errorCount;
+      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("expected: " + expected);
+      logErrorItem("actual: " + actual);
+    }
+  }
+
+  /* package */ void checkDoubleResult(String label, double actual, double expected) {
+    if (expected == actual) {
+      logResult(label + " - OK");
+    } else {
+      ++errorCount;
+      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("expected: " + expected);
+      logErrorItem("actual: " + actual);
+    }
+  }
+
+  /* package */ void checkStringResult(String label, String actual, String expected) {
+    if (expected.equals(actual)) {
+      logResult(label + " - OK");
+    } else {
+      ++errorCount;
+      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("expected: " + expected);
+      logErrorItem("actual: " + actual);
+    }
+  }
+
+  /* package */ void logResult(String result) {
+    android.util.Log.i("SQLiteGlueTest", result);
+    resultsAdapter.add(result);
+  }
+
+  /* package */ void logError(String result) {
+    logErrorItem(result);
+    ++errorCount;
+  }
+
   /* package */ void logUnexpectedException(String result, java.lang.Exception ex) {
     android.util.Log.e("SQLiteGlueTest", "UNEXPECTED EXCEPTION IN " + result, ex);
     resultsAdapter.add("UNEXPECTED EXCEPTION IN " + result + " : " + ex);
+    ++errorCount;
   }
 
   /** Called when the activity is first created. */
@@ -30,10 +101,9 @@ public class SQLiteConnectorTest extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    ArrayAdapter<String> r1 =
-      resultsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+    resultsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
     ListView lv1 = (ListView)findViewById(R.id.results);
-    lv1.setAdapter(r1);
+    lv1.setAdapter(resultsAdapter);
 
   //  try {
   //    runTest();
@@ -51,90 +121,70 @@ public class SQLiteConnectorTest extends Activity
   ///* package */ void runTest() {
     try {
 
-    SQLiteConnector connector = new SQLiteGlueConnector();
+    SQLiteConnector myconnector = new SQLiteGlueConnector();
 
     File dbfile = new File(getFilesDir(), "mytest.db");
 
     SQLiteConnection mydbc = null;
 
     try {
-      mydbc = connector.newSQLiteConnection(dbfile.getAbsolutePath(),
+      mydbc = myconnector.newSQLiteConnection(dbfile.getAbsolutePath(),
         SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE);
     } catch (SQLException ex) {
       logUnexpectedException("DB open exception", ex);
       return;
     }
 
-    SQLiteStatement st;
+    SQLiteStatement mystatement;
 
     try {
-      st = mydbc.prepareStatement("select upper('How about some ascii text?') as caps");
+      mystatement = mydbc.prepareStatement("SELECT UPPER('How about some ascii text?') AS caps");
     } catch (SQLException ex) {
       logUnexpectedException("prepare statement exception", ex);
       mydbc.dispose();
       return;
     }
 
-    st.step();
+    mystatement.step();
 
-    int colcount = st.getColumnCount();
-    r1.add(new String("column count: " + colcount));
-    android.util.Log.i("SQLiteGlueTest", "column count: " + colcount);
+    int mycolcount = mystatement.getColumnCount();
+    checkIntegerResult("SELECT UPPER() column count: ", mycolcount, 1);
 
-    String colname = st.getColumnName(0);
-    r1.add(new String("column name: " + colname));
-    android.util.Log.i("SQLiteGlueTest", "column name: " + colname);
+    if (mycolcount > 0) {
+      String colname = mystatement.getColumnName(0);
+      checkStringResult("SELECT UPPER() caps column name", colname, "caps");
 
-    int coltype = st.getColumnType(0);
-    android.util.Log.i("SQLiteGlueTest", "column type: " + coltype);
+      int coltype = mystatement.getColumnType(0);
+      checkIntegerResult("SELECT UPPER() caps column type", coltype, 3);
 
-    String first = st.getColumnTextNativeString(0);
+      String coltext = mystatement.getColumnTextNativeString(0);
+      checkStringResult("SELECT UPPER() as caps", coltext, "HOW ABOUT SOME ASCII TEXT?");
+    }
 
-    r1.add(new String("upper: " + first));
-
-    st.dispose();
+    mystatement.dispose();
 
     try {
-      st = mydbc.prepareStatement("drop table if exists tt;");
+      mystatement = mydbc.prepareStatement("DROP TABLE IF EXISTS mytable;");
     } catch (SQLException ex) {
       logUnexpectedException("prepare statement exception", ex);
       mydbc.dispose();
       return;
     }
-    st.step();
-    st.dispose();
+    mystatement.step();
+    mystatement.dispose();
 
     try {
-      st = mydbc.prepareStatement("create table if not exists tt (text1 text, num1 integer, num2 integer, real1 real)");
+      mystatement = mydbc.prepareStatement("CREATE TABLE IF NOT EXISTS mytable (text1 TEXT, num1 INTEGER, num2 INTEGER, real1 REAL)");
     } catch (SQLException ex) {
       logUnexpectedException("prepare statement exception", ex);
       mydbc.dispose();
       return;
     }
-    st.step();
-    st.dispose();
-
-    /* XXX Brody TODO:
-    // test statement error handling (seems to throw exception here):
-    try {
-      // seems to fail here:
-      st = mydbc.prepareStatement("INSERT INTO tt (data, data_num) VALUES (?,?)");
-
-      st.step();
-      st.dispose();
-
-      // should not get here:
-      android.util.Log.w("SQLiteGlueTest", "ERROR: statement should not have succeeded");
-      r1.add("ERROR: statement should not have succeeded");
-    } catch (SQLException ex) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement exception, as expected OK", ex);
-      r1.add("prepare statement exception, as expected OK: " + ex);
-      // TODO dispose statement??
-    }
-    */
+    mystatement.step();
+    mystatement.dispose();
 
     try {
-      st = mydbc.prepareStatement("INSERT INTO tt (text1, num1, num2, real1) VALUES (?,?,?,?)");
+      mystatement = mydbc.prepareStatement("INSERT INTO mytable (text1, num1, num2, real1) VALUES (?,?,?,?)");
 
       // should not get here:
     } catch (SQLException ex) {
@@ -142,82 +192,121 @@ public class SQLiteConnectorTest extends Activity
       mydbc.dispose();
       return;
     }
-    st.bindTextNativeString(1, "test");
-    st.bindInteger(2, 10100);
-    st.bindLong(3, 0x1230000abcdL);
-    st.bindDouble(4, 123456.789);
+    mystatement.bindTextNativeString(1, "test");
+    mystatement.bindInteger(2, 10100);
+    mystatement.bindLong(3, 0x1230000abcdL);
+    mystatement.bindDouble(4, 123456.789);
 
-    boolean sr = st.step();
-    while (sr) {
-      android.util.Log.i("SQLiteGlueTest", "step next");
-      sr = st.step();
+    boolean keep_going = mystatement.step();
+    while (keep_going) {
+      logError("ERROR: ROW result NOT EXPECTED for INSERT");
+      keep_going = mystatement.step();
     }
-    android.util.Log.i("SQLiteGlueTest", "last step " + sr);
-    st.dispose();
+    mystatement.dispose();
 
     try {
-      st = mydbc.prepareStatement("select * from tt;");
+      mystatement = mydbc.prepareStatement("SELECT * FROM mytable;");
     } catch (SQLException ex) {
       logUnexpectedException("prepare statement exception", ex);
       mydbc.dispose();
       return;
     }
 
-    sr = st.step();
-    while (sr) {
-      android.util.Log.i("SQLiteGlueTest", "step next");
-      r1.add("step next");
+    keep_going = mystatement.step();
+    checkBooleanResult("SELECT step result (keep_going flag)", keep_going, true);
+    if (keep_going) {
+      int colcount = mystatement.getColumnCount();
+      checkIntegerResult("SELECT column count", colcount, 4);
 
-      colcount = st.getColumnCount();
-      android.util.Log.i("SQLiteGlueTest", "column count: " + colcount);
+      if (colcount >= 3) {
+        int colid = 0;
+        String colname;
+        int coltype;
+        String coltext;
+        int intval;
+        long longval;
+        double doubleval;
 
-      for (int i=0;i<colcount;++i) {
-        colname = st.getColumnName(i);
-        android.util.Log.i("SQLiteGlueTest", "column " + i + " name: " + colname);
-        r1.add("column " + i + " name: " + colname);
+        colname = mystatement.getColumnName(colid);
+        checkStringResult("SELECT column " + colid + " name", colname, "text1");
 
-        coltype = st.getColumnType(i);
-        android.util.Log.i("SQLiteGlueTest", "column " + i + " type: " + coltype);
-        r1.add("column " + i + " type: " + coltype);
+        coltype = mystatement.getColumnType(colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLColumnType.TEXT);
 
-        String text = st.getColumnTextNativeString(i);
-        android.util.Log.i("SQLiteGlueTest", "col " + i + " text " + text);
-        r1.add("col " + i + " text " + text);
+        coltext = mystatement.getColumnTextNativeString(colid);
+        checkStringResult("SELECT column " + colid + " text string", coltext, "test");
+
+        ++colid;
+
+        colname = mystatement.getColumnName(colid);
+        checkStringResult("SELECT column " + colid + " name", colname, "num1");
+
+        coltype = mystatement.getColumnType(colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLColumnType.INTEGER);
+
+        coltext = mystatement.getColumnTextNativeString(colid);
+        checkStringResult("SELECT column " + colid + " text string", coltext, "10100");
+        intval = mystatement.getColumnInteger(colid);
+        checkIntegerResult("SELECT column " + colid + " int value", intval, 10100);
+        longval = mystatement.getColumnLong(colid);
+        checkLongResult("SELECT column " + colid + " long value", longval, 10100);
+
+        ++colid;
+
+        colname = mystatement.getColumnName(colid);
+        checkStringResult("SELECT column " + colid + " name", colname, "num2");
+
+        coltype = mystatement.getColumnType(colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLColumnType.INTEGER);
+
+        longval = mystatement.getColumnLong(colid);
+        checkLongResult("SELECT column " + colid + " long value", longval, 0x1230000abcdL);
+
+        ++colid;
+
+        colname = mystatement.getColumnName(colid);
+        checkStringResult("SELECT column " + colid + " name", colname, "real1");
+
+        coltype = mystatement.getColumnType(colid);
+        checkIntegerResult("SELECT column " + colid + " type", coltype, SQLColumnType.REAL);
+
+        coltext = mystatement.getColumnTextNativeString(colid);
+        checkStringResult("SELECT column " + colid + " text string", coltext, "123456.789");
+        doubleval = mystatement.getColumnDouble(colid);
+        checkDoubleResult("SELECT column " + colid + " double (real) value", doubleval, 123456.789);
       }
 
-      sr = st.step();
+      keep_going = mystatement.step();
     }
-    android.util.Log.i("SQLiteGlueTest", "last step " + sr);
-    r1.add("last step " + sr);
+    checkBooleanResult("SELECT step result (keep_going flag)", keep_going, false);
 
-    st.dispose();
+    mystatement.dispose();
 
-    // XXX TODO fails with SQL error code 5 (SQLITE_BUSY):
-    //mydbc.dispose();
+    checkIntegerResult("TEST error count", errorCount, 0);
 
-    /* XXX TODO:
+    mydbc.dispose();
+
     // try to reopen database:
     try {
-      mydbc = connector.newSQLiteConnection(dbfile.getAbsolutePath(),
+      mydbc = myconnector.newSQLiteConnection(dbfile.getAbsolutePath(),
         SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE);
     } catch (SQLException ex) {
-      android.util.Log.w("SQLiteGlueTest", "DB open exception", ex);
+      logUnexpectedException("DB open exception", ex);
       return;
     }
 
     // try to cleanup the table:
     try {
-      st = mydbc.prepareStatement("drop table if exists tt;");
+      mystatement = mydbc.prepareStatement("DROP TABLE IF EXISTS mytable;");
     } catch (SQLException ex) {
-      android.util.Log.w("SQLiteGlueTest", "prepare statement exception", ex);
+      logUnexpectedException("prepare statement exception", ex);
       mydbc.dispose();
       return;
     }
-    st.step();
-    st.dispose();
+    mystatement.step();
+    mystatement.dispose();
 
     mydbc.dispose();
-    */
 
     } catch (java.lang.Exception ex) {
       logUnexpectedException("unexpected exception", ex);
