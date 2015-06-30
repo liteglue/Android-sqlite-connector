@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 /* package */ interface SQLDatabaseHandle {
   public int open();

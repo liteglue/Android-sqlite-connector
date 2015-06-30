@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public interface SQLiteStatement {
   public void bindDouble(int pos, double val) throws java.sql.SQLException;

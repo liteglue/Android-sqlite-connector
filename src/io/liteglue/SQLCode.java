@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public class SQLCode {
   /* sqlite result codes: */

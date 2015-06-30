@@ -1,6 +1,4 @@
-package net.sqlc;
-
-//import org.sqlg.SQLiteGlue;
+package io.liteglue;
 
 public class SQLiteGlueConnection implements SQLiteConnection {
   public SQLiteGlueConnection(String filename, int flags) throws java.sql.SQLException

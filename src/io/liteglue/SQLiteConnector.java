@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public interface SQLiteConnector {
   public SQLiteConnection newSQLiteConnection(String filename, int flags) throws java.sql.SQLException;

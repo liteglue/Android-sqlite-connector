@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public interface SQLiteConnection {
   public void dispose() throws java.sql.SQLException;

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import net.sqlc.*;
+import io.liteglue.*;
 
 import java.io.File;
 

@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public class SQLiteOpenFlags {
   public static final int READONLY  = 0x0001;

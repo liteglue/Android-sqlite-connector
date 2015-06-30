@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public class SQLiteGlueConnector implements SQLiteConnector {
   static boolean isLibLoaded = false;

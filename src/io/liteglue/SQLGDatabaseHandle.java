@@ -1,6 +1,4 @@
-package net.sqlc;
-
-import io.liteglue.SQLiteNative;
+package io.liteglue;
 
 /* package */ class SQLGDatabaseHandle implements SQLDatabaseHandle {
   public SQLGDatabaseHandle(String filename, int flags) {

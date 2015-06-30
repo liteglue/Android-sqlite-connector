@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 /* package */ interface SQLStatementHandle {
   public int prepare();

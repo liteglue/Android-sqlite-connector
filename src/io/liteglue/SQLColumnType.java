@@ -1,4 +1,4 @@
-package net.sqlc;
+package io.liteglue;
 
 public class SQLColumnType {
   public static final int INTEGER = 1; // SQLITE_INTEGER
