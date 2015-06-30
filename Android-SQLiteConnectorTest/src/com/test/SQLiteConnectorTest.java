@@ -121,7 +121,7 @@ public class SQLiteConnectorTest extends Activity
   ///* package */ void runTest() {
     try {
 
-    SQLiteConnector myconnector = new SQLiteGlueConnector();
+    SQLiteConnector myconnector = new SQLiteConnector();
 
     File dbfile = new File(getFilesDir(), "mytest.db");
 

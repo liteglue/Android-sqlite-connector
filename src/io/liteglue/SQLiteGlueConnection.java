@@ -1,6 +1,6 @@
 package io.liteglue;
 
-public class SQLiteGlueConnection implements SQLiteConnection {
+/* package */ class SQLiteGlueConnection implements SQLiteConnection {
   public SQLiteGlueConnection(String filename, int flags) throws java.sql.SQLException
   {
     /* check param(s): */

@@ -34,10 +34,16 @@ There is a simple test project in the `Android-SQLiteConnectorTest` subdirectory
 
 ### First step
 
-Get a SQLiteConnector factory instance:
+Import `io.liteglue` package:
 
 ```Java
-SQLiteConnector myconnector = new SQLiteGlueConnector();
+import io.liteglue.*;
+```
+
+Get a SQLiteConnector (factory) instance:
+
+```Java
+SQLiteConnector myconnector = new SQLiteConnector();
 ```
 
 ### Open a database
