@@ -1,6 +1,6 @@
 package net.sqlc;
 
-import org.sqlg.SQLiteGlue;
+import io.liteglue.SQLiteNative;
 
 /* package */ class SQLGDatabaseHandle implements SQLDatabaseHandle {
   public SQLGDatabaseHandle(String filename, int flags) {
@@ -13,7 +13,7 @@ import org.sqlg.SQLiteGlue;
     /* check state (should be checked by caller): */
     if (dbfilename == null || dbhandle != 0) return SQLCode.MISUSE;
 
-    long handle = SQLiteGlue.sqlg_db_open(dbfilename, openflags);
+    long handle = SQLiteNative.sqlc_db_open(dbfilename, openflags);
     if (handle < 0) return (int)(-handle);
 
     dbhandle = handle;
@@ -31,7 +31,7 @@ import org.sqlg.SQLiteGlue;
     /* check state (should be checked by caller): */
     //if (dbhandle == 0) return SQLCode.MISUSE;
 
-    //return SQLiteGlue.sqlg_db_key_string_native(this.dbhandle, key);
+    //return SQLiteNative.sqlc_db_key_string_native(this.dbhandle, key);
   }
 
   @Override
@@ -39,7 +39,7 @@ import org.sqlg.SQLiteGlue;
     /* check state (should be checked by caller): */
     if (dbhandle == 0) return SQLCode.MISUSE;
 
-    return SQLiteGlue.sqlg_db_close(this.dbhandle);
+    return SQLiteNative.sqlc_db_close(this.dbhandle);
   }
 
   @Override
@@ -60,7 +60,7 @@ import org.sqlg.SQLiteGlue;
     /* check state (should be checked by caller): */
     if (dbhandle == 0) return -1; /* illegit value */
 
-    return SQLiteGlue.sqlg_db_last_insert_rowid(dbhandle);
+    return SQLiteNative.sqlc_db_last_insert_rowid(dbhandle);
   }
 
   @Override
@@ -68,7 +68,7 @@ import org.sqlg.SQLiteGlue;
     /* check state (should be checked by caller): */
     if (dbhandle == 0) return -1; /* illegit value */
 
-    return SQLiteGlue.sqlg_db_total_changes(dbhandle);
+    return SQLiteNative.sqlc_db_total_changes(dbhandle);
   }
 
   // XXX TODO make this reusable:
@@ -82,7 +82,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sql == null || sthandle != 0) return SQLCode.MISUSE;
 
-      long sh = SQLiteGlue.sqlg_db_prepare_st(dbhandle, sql);
+      long sh = SQLiteNative.sqlc_db_prepare_st(dbhandle, sql);
       if (sh < 0) return (int)(-sh);
 
       sthandle = sh;
@@ -94,7 +94,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_double(this.sthandle, pos, val);
+      return SQLiteNative.sqlc_st_bind_double(this.sthandle, pos, val);
     }
 
     @Override
@@ -102,7 +102,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_int(this.sthandle, pos, val);
+      return SQLiteNative.sqlc_st_bind_int(this.sthandle, pos, val);
     }
 
     @Override
@@ -110,7 +110,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_long(this.sthandle, pos, val);
+      return SQLiteNative.sqlc_st_bind_long(this.sthandle, pos, val);
     }
 
     @Override
@@ -118,7 +118,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_null(this.sthandle, pos);
+      return SQLiteNative.sqlc_st_bind_null(this.sthandle, pos);
     }
 
     @Override
@@ -126,7 +126,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_bind_text_native(this.sthandle, pos, val);
+      return SQLiteNative.sqlc_st_bind_text_native(this.sthandle, pos, val);
     }
 
     @Override
@@ -134,7 +134,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return SQLCode.MISUSE;
 
-      return SQLiteGlue.sqlg_st_step(this.sthandle);
+      return SQLiteNative.sqlc_st_step(this.sthandle);
     }
 
     @Override
@@ -142,7 +142,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return -1;
 
-      return SQLiteGlue.sqlg_st_column_count(this.sthandle);
+      return SQLiteNative.sqlc_st_column_count(this.sthandle);
     }
 
     @Override
@@ -150,7 +150,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return null;
 
-      return SQLiteGlue.sqlg_st_column_name(this.sthandle, col);
+      return SQLiteNative.sqlc_st_column_name(this.sthandle, col);
     }
 
     @Override
@@ -158,7 +158,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return -1;
 
-      return SQLiteGlue.sqlg_st_column_type(this.sthandle, col);
+      return SQLiteNative.sqlc_st_column_type(this.sthandle, col);
     }
 
     @Override
@@ -166,7 +166,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return -1;
 
-      return SQLiteGlue.sqlg_st_column_double(this.sthandle, col);
+      return SQLiteNative.sqlc_st_column_double(this.sthandle, col);
     }
 
     @Override
@@ -174,7 +174,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return -1;
 
-      return SQLiteGlue.sqlg_st_column_int(this.sthandle, col);
+      return SQLiteNative.sqlc_st_column_int(this.sthandle, col);
     }
 
     @Override
@@ -182,7 +182,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return -1;
 
-      return SQLiteGlue.sqlg_st_column_long(this.sthandle, col);
+      return SQLiteNative.sqlc_st_column_long(this.sthandle, col);
     }
 
     @Override
@@ -190,7 +190,7 @@ import org.sqlg.SQLiteGlue;
       /* check state (should be checked by caller): */
       if (sthandle == 0) return null;
 
-      return SQLiteGlue.sqlg_st_column_text_native(this.sthandle, col);
+      return SQLiteNative.sqlc_st_column_text_native(this.sthandle, col);
     }
 
     @Override
@@ -202,7 +202,7 @@ import org.sqlg.SQLiteGlue;
       sql = null;
       sthandle = 0;
 
-      return SQLiteGlue.sqlg_st_finish(mysthandle);
+      return SQLiteNative.sqlc_st_finish(mysthandle);
     }
 
     String sql = null;

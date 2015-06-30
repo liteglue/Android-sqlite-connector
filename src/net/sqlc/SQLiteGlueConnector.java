@@ -5,7 +5,7 @@ public class SQLiteGlueConnector implements SQLiteConnector {
 
   public SQLiteGlueConnector() {
     if (!isLibLoaded) {
-      System.loadLibrary("sqlg");
+      System.loadLibrary("sqlc-native-driver");
       isLibLoaded = true;
     }
   }

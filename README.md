@@ -1,23 +1,25 @@
-# Android SQLiteConnector
+# Android sqlite connector
 
-Java classes with abstract interface layers to provide a simple, easy-to-use Java interface to sqlite library. Tested with Android, may be adapted for other Java applications.
+Java classes with abstract interface layers to provide a simple, easy-to-use Java interface to the andriod-sqlite-native-driver library (may be adapted for other Java environments).
 
-With a simple test Android app.
+With a simple test Android app included.
 
 Unlicense (public domain).
 
 ## Dependencies
 
 Not included:
-- `libs/armeabi/libsqlg.so`, as built in [sqlg / SQLiteGlue-core](https://github.com/sqlg/SQLiteGlue-core) (for Android)
+- `sqlite-native-driver.jar` with native Android libraries, as built in [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver)
 
 Included:
-- `src/org/sqlg/SQLiteGlue.java` - low-level Java class that provides 
+- `src/io/liteglue/SQLiteNative.java` - low-level Java class from  [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver)
 
 ## Installation
 
-- Include the contents of `src/org/sqlg` (`src/org/sqlg/SQLiteGlue.java`) and `src/net/sqlc` in your source code (or build separately)
-- Include the contents of `libs` (`libs/armeabi/libsqlg.so`) which must be built in [sqlg / SQLiteGlue-core](https://github.com/sqlg/SQLiteGlue-core)
+- Include `sqlite-native-driver.jar` (as built in [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver)) in your `libs` directory
+- Include the contents of `src/io/liteglue` (`src/io/liteglue/SQLiteNative.java`) and `src/net/sqlc` in your source code (or build separately) (TBD jar will be built and provided)
+
+FUTURE TBD jar(s) will be provided
 
 ## Sample API Usage
 
