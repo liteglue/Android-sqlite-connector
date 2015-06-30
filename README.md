@@ -16,10 +16,17 @@ Included:
 
 ## Installation
 
-- Include `sqlite-native-driver.jar` (as built in [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver)) in your `libs` directory
-- Include the contents of `src/io/liteglue` (`src/io/liteglue/SQLiteNative.java`) and `src/net/sqlc` in your source code (or build separately) (TBD jar will be built and provided)
+Include the following `jar` files in your `libs` directory:
+- `sqlite-native-driver.jar`, as built in [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver)
+- `sqlite-connector.jar`, which is built by simply issuing the `make` command in this project
 
-FUTURE TBD jar(s) will be provided
+## Testing
+
+There is a simple test project in the `Android-SQLiteConnectorTest` subdirectory. To test:
+- `cd Android-SQLiteConnectorTest`
+- copy the `jar` files into the `libs` subdirectory of `Android-SQLiteConnectorTest` as described above
+- install it on your emulator or device: `ant debug install`
+- run it on your emulator or device
 
 ## Sample API Usage
 

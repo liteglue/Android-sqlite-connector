@@ -2,5 +2,6 @@
 *.swp
 *.java.old
 *.jar
-bin
-gen
+Android-SQLiteConnectorTest/bin
+Android-SQLiteConnectorTest/gen
+build
