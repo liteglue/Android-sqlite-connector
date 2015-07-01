@@ -20,16 +20,10 @@ package io.liteglue;
 
   @Override
   public int keyNativeString(String key) {
-    return SQLCode.INTERNAL; /* 2 */
-
-    // FUTURE TODO: this should work in case it links with sqlcipher,
-    // or simply return SQLITE_INTERNAL (2) if it links with
-    // unencrypted version of sqlite.
-
     /* check state (should be checked by caller): */
-    //if (dbhandle == 0) return SQLCode.MISUSE;
+    if (dbhandle == 0) return SQLCode.MISUSE;
 
-    //return SQLiteNative.sqlc_db_key_string_native(this.dbhandle, key);
+    return SQLiteNative.sqlc_db_key_native_string(this.dbhandle, key);
   }
 
   @Override
