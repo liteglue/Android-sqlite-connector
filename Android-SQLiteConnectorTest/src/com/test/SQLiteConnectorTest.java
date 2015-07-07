@@ -282,8 +282,6 @@ public class SQLiteConnectorTest extends Activity
 
     mystatement.dispose();
 
-    checkIntegerResult("TEST error count", errorCount, 0);
-
     mydbc.dispose();
 
     // try to reopen database:
@@ -307,6 +305,8 @@ public class SQLiteConnectorTest extends Activity
     mystatement.dispose();
 
     mydbc.dispose();
+
+    checkIntegerResult("TEST error count", errorCount, 0);
 
     } catch (java.lang.Exception ex) {
       logUnexpectedException("unexpected exception", ex);
