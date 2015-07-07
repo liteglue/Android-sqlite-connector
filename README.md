@@ -17,7 +17,7 @@ Included:
 ## Installation
 
 Include the following `jar` files in your `libs` directory:
-- `sqlite-native-driver.jar`, as built in [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver)
+- `sqlite-native-driver.jar`, as built in [liteglue / Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver) -- or `sqlcipher-native-driver.jar` as built in [liteglue / Android-sqlcipher-native-driver](https://github.com/liteglue/Android-sqlcipher-native-driver)
 - `sqlite-connector.jar`, which is built by simply issuing the `make` command in this project
 
 ## Testing
@@ -53,6 +53,12 @@ File dbfile = new File(getFilesDir(), "my.db");
 
 SQLiteConnection mydbc = myconnector.newSQLiteConnection(dbfile.getAbsolutePath(),
     SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE);
+```
+
+OPTIONAL, for use with `sqlcipher-native-driver.jar` *only*: to specify the password key:
+
+```Java
+mydbc.keyNativeString("your-password");
 ```
 
 ### Prepare and run a simple statement (with no parameters)
