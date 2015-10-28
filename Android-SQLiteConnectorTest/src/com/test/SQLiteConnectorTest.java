@@ -28,7 +28,7 @@ public class SQLiteConnectorTest extends Activity
       logResult(label + " - OK");
     } else {
       ++errorCount;
-      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("FAILED CHECK: " + label);
       logErrorItem("expected: " + expected);
       logErrorItem("actual: " + actual);
     }
@@ -39,7 +39,7 @@ public class SQLiteConnectorTest extends Activity
       logResult(label + " - OK");
     } else {
       ++errorCount;
-      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("FAILED CHECK: " + label);
       logErrorItem("expected: " + expected);
       logErrorItem("actual: " + actual);
     }
@@ -50,7 +50,7 @@ public class SQLiteConnectorTest extends Activity
       logResult(label + " - OK");
     } else {
       ++errorCount;
-      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("FAILED CHECK: " + label);
       logErrorItem("expected: " + expected);
       logErrorItem("actual: " + actual);
     }
@@ -61,7 +61,7 @@ public class SQLiteConnectorTest extends Activity
       logResult(label + " - OK");
     } else {
       ++errorCount;
-      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("FAILED CHECK: " + label);
       logErrorItem("expected: " + expected);
       logErrorItem("actual: " + actual);
     }
@@ -72,7 +72,7 @@ public class SQLiteConnectorTest extends Activity
       logResult(label + " - OK");
     } else {
       ++errorCount;
-      logErrorItem("FAILED CHECK" + label);
+      logErrorItem("FAILED CHECK: " + label);
       logErrorItem("expected: " + expected);
       logErrorItem("actual: " + actual);
     }
@@ -163,6 +163,7 @@ public class SQLiteConnectorTest extends Activity
 
     mystatement.dispose();
 
+    // cleanup the table just in case it remains from an old run:
     try {
       mystatement = mydbc.prepareStatement("DROP TABLE IF EXISTS mytable;");
     } catch (SQLException ex) {
@@ -174,7 +175,7 @@ public class SQLiteConnectorTest extends Activity
     mystatement.dispose();
 
     try {
-      mystatement = mydbc.prepareStatement("CREATE TABLE IF NOT EXISTS mytable (text1 TEXT, num1 INTEGER, num2 INTEGER, real1 REAL)");
+      mystatement = mydbc.prepareStatement("CREATE TABLE mytable (text1 TEXT NOT NULL, num1 INTEGER, num2 INTEGER, real1 REAL)");
     } catch (SQLException ex) {
       logUnexpectedException("prepare statement exception", ex);
       mydbc.dispose();
@@ -183,11 +184,21 @@ public class SQLiteConnectorTest extends Activity
     mystatement.step();
     mystatement.dispose();
 
+    // test syntax error:
+    try {
+      mystatement = mydbc.prepareStatement("INVALID STATEMENT");
+      // should not get here:
+      logError("INVALID STATEMENT should NOT have succeeded");
+      mystatement.dispose();
+    } catch (SQLException ex) {
+      checkIntegerResult("Check SQLITE_ERROR code", ex.getErrorCode(), SQLCode.ERROR);
+      checkStringResult("Check syntax error message", ex.getMessage(), "sqlite3_prepare_v2 failure: near \"INVALID\": syntax error");
+    }
+
     try {
       mystatement = mydbc.prepareStatement("INSERT INTO mytable (text1, num1, num2, real1) VALUES (?,?,?,?)");
-
-      // should not get here:
     } catch (SQLException ex) {
+      // should not get here:
       logUnexpectedException("prepare statement exception (not expected)", ex);
       mydbc.dispose();
       return;
@@ -280,9 +291,23 @@ public class SQLiteConnectorTest extends Activity
     }
     checkBooleanResult("SELECT step result (keep_going flag)", keep_going, false);
 
+    // try to close the database (with the statement still open):
+    try {
+      mydbc.dispose();
+
+      // should not get here:
+      logError("mydbc.dispose() should NOT have succeeded with a statement still open");
+      mydbc = null;
+    } catch (SQLException ex) {
+      checkIntegerResult("Check database close error code", ex.getErrorCode(), SQLCode.BUSY);
+      checkStringResult("Check database close error message", ex.getMessage(), "sqlite3_close failure: unable to close due to unfinalized statements or unfinished backups");
+    }
+
     mystatement.dispose();
 
-    mydbc.dispose();
+    if (mydbc != null) {
+      mydbc.dispose();
+    }
 
     // try to reopen database:
     try {
@@ -292,6 +317,32 @@ public class SQLiteConnectorTest extends Activity
       logUnexpectedException("DB open exception", ex);
       return;
     }
+
+    // Prepare to test constraint violation:
+    try {
+      mystatement = mydbc.prepareStatement("INSERT INTO mytable (text1, num1, num2, real1) VALUES (?,?,?,?)");
+    } catch (SQLException ex) {
+      // should not get here:
+      logUnexpectedException("prepare statement exception (not expected)", ex);
+      mydbc.dispose();
+      return;
+    }
+    mystatement.bindNull(1);
+    mystatement.bindInteger(2, 0);
+    mystatement.bindInteger(3, 0);
+    mystatement.bindInteger(4, 0);
+
+    // test constraint violation:
+    try {
+      mystatement.step();
+
+      // should not get here:
+      logError("constraint violation should NOT have succeeded");
+    } catch (SQLException ex) {
+      checkIntegerResult("Check SQLITE_CONSTRAINT error code", ex.getErrorCode(), SQLCode.CONSTRAINT);
+      checkStringResult("Check constraint violation message", ex.getMessage(), "sqlite3_step failure: mytable.text1 may not be NULL");
+    }
+    mystatement.dispose();
 
     // try to cleanup the table:
     try {
@@ -304,12 +355,18 @@ public class SQLiteConnectorTest extends Activity
     mystatement.step();
     mystatement.dispose();
 
-    mydbc.dispose();
+    // XXX TODO: for some reason sqlite3_close as called by mydbc.dispose() does not work
+    // since it was not possible to finalize the statement after the constraint violation.
+    try {
+      mydbc.dispose();
+    } catch (SQLException ex) {
+      logUnexpectedException("Could not close database at the end", ex);
+    }
 
     checkIntegerResult("TEST error count", errorCount, 0);
 
     } catch (java.lang.Exception ex) {
-      logUnexpectedException("unexpected exception", ex);
+      logUnexpectedException("UNEXPECTED EXCEPTION", ex);
       return;
     }
 

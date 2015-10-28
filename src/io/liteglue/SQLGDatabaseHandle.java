@@ -63,6 +63,13 @@ package io.liteglue;
     return SQLiteNative.sqlc_db_total_changes(dbhandle);
   }
 
+  @Override
+  public String getLastErrorMessage() {
+    /* check state (should be checked by caller): */
+    if (dbhandle == 0) return null; /* illegit value */
+    return SQLiteNative.sqlc_db_errmsg_native(dbhandle);
+  }
+
   // XXX TODO make this reusable:
   private class SQLGStatementHandle implements SQLStatementHandle {
     private SQLGStatementHandle(String sql) {

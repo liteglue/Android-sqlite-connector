@@ -9,7 +9,7 @@ package io.liteglue;
     SQLDatabaseHandle mydb = new SQLGDatabaseHandle(filename, flags);
     int rc = mydb.open();
 
-    if (rc != SQLCode.OK) throw new java.sql.SQLException("open failed with error: " + rc, "failed", rc);
+    if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_open_v2 failure: " + db.getLastErrorMessage(), "failure", rc);
     this.db = mydb;
   }
 
@@ -19,7 +19,7 @@ package io.liteglue;
     if (db == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
     int rc = db.close();
-    if (rc != SQLCode.OK) throw new java.sql.SQLException("dispose failed with error: " + rc, "failed", rc);
+    if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_close failure: " + db.getLastErrorMessage(), "failure", rc);
     db = null;
   }
 
@@ -29,7 +29,7 @@ package io.liteglue;
     if (db == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
     int rc = db.keyNativeString(key);
-    if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_key failed with error: " + rc, "failed", rc);
+    if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_key failure: " + db.getLastErrorMessage(), "failure", rc);
   }
 
   @Override
@@ -42,7 +42,9 @@ package io.liteglue;
 
     SQLGStatement st = new SQLGStatement(sql);
     int rc = st.prepare();
-    if (rc != SQLCode.OK) throw new java.sql.SQLException("prepare statement failed with error: " + rc, "failed", rc);
+    if (rc != SQLCode.OK) {
+      throw new java.sql.SQLException("sqlite3_prepare_v2 failure: " + db.getLastErrorMessage(), "failure", rc);
+    }
 
     return st;
   }
@@ -81,7 +83,7 @@ package io.liteglue;
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       int rc = sthandle.bindDouble(pos, val);
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindDouble failed with error: " + rc, "failed", rc);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_bind_double failure: " + db.getLastErrorMessage(), "failure", rc);
     }
 
     @Override
@@ -90,7 +92,7 @@ package io.liteglue;
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       int rc = sthandle.bindInteger(pos, val);
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindInteger failed with error: " + rc, "failed", rc);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_bind_int failure: " + db.getLastErrorMessage(), "failure", rc);
     }
 
     @Override
@@ -99,7 +101,7 @@ package io.liteglue;
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       int rc = sthandle.bindLong(pos, val);
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindLong failed with error: " + rc, "failed", rc);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_bind_int64 (long) failure: " + db.getLastErrorMessage(), "failure", rc);
     }
 
     @Override
@@ -108,7 +110,7 @@ package io.liteglue;
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       int rc = sthandle.bindNull(pos);
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindNull failed with error: " + rc, "failed", rc);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_bind_null failure: " + db.getLastErrorMessage(), "failure", rc);
     }
 
     @Override
@@ -120,7 +122,7 @@ package io.liteglue;
       if (val == null) throw new java.sql.SQLException("null argument", "failed", SQLCode.MISUSE);
 
       int rc = sthandle.bindTextNativeString(pos, val);
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("bindTextNativeString failed with error: " + rc, "failed", rc);
+      if (rc != SQLCode.OK) throw new java.sql.SQLException("sqlite3_bind_text failure: " + db.getLastErrorMessage(), "failure", rc);
     }
 
     @Override
@@ -129,7 +131,9 @@ package io.liteglue;
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
       int rc = sthandle.step();
-      if (rc != SQLCode.OK && rc != SQLCode.ROW && rc != SQLCode.DONE) throw new java.sql.SQLException("step failed with error: " + rc, "failed", rc);
+      if (rc != SQLCode.OK && rc != SQLCode.ROW && rc != SQLCode.DONE) {
+        throw new java.sql.SQLException("sqlite3_step failure: " + db.getLastErrorMessage(), "failure", rc);
+      }
 
       hasRow = (rc == SQLCode.ROW);
       if (hasRow) {
@@ -213,8 +217,8 @@ package io.liteglue;
       /* check state: */
       if (sthandle == null) throw new java.sql.SQLException("already disposed", "failed", SQLCode.MISUSE);
 
-      int rc = sthandle.finish();
-      if (rc != SQLCode.OK) throw new java.sql.SQLException("finish failed with error: " + rc, "failed", rc);
+      /* NOTE: no need to check the return code in this case. */
+      sthandle.finish();
       sthandle = null;
     }
 
