@@ -340,7 +340,7 @@ public class SQLiteConnectorTest extends Activity
       logError("constraint violation should NOT have succeeded");
     } catch (SQLException ex) {
       checkIntegerResult("Check SQLITE_CONSTRAINT error code", ex.getErrorCode(), SQLCode.CONSTRAINT);
-      checkStringResult("Check constraint violation message", ex.getMessage(), "sqlite3_step failure: mytable.text1 may not be NULL");
+      checkStringResult("Check constraint violation message", ex.getMessage(), "sqlite3_step failure: NOT NULL constraint failed: mytable.text1");
     }
     mystatement.dispose();
 
